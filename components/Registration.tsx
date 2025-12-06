@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, Server, WifiOff } from 'lucide-react';
+import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets } from 'lucide-react';
 import { registerUser } from '../services/userService';
-import { UserProfile } from '../types';
+import { UserProfile, BloodType } from '../types';
 
-const Registration: React.FC = () => {
+interface RegistrationProps {
+  quizResult: BloodType | null;
+  onRedirectToQuiz: () => void;
+}
+
+const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQuiz }) => {
   const [formData, setFormData] = useState({
     name: '',
     gender: 'Select Gender',
@@ -14,12 +19,13 @@ const Registration: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!quizResult) return; // Should not happen due to UI gate, but good for safety
+
     setLoading(true);
     
     // Call the async service
-    // Minimum 800ms delay for UX if server is too fast
     const start = Date.now();
-    const user = await registerUser(formData.name, formData.gender, formData.email);
+    const user = await registerUser(formData.name, formData.gender, formData.email, quizResult);
     const end = Date.now();
     
     const remainingTime = Math.max(0, 800 - (end - start));
@@ -63,6 +69,31 @@ const Registration: React.FC = () => {
     );
   }
 
+  // Pre-requisite check: User must have taken the quiz
+  if (!quizResult) {
+    return (
+      <div className="w-full max-w-lg mx-auto animate-fade-in">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 text-center p-8">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <AlertTriangle className="w-10 h-10 text-amber-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-4">Diagnostic Required</h2>
+            <p className="text-slate-600 leading-relaxed mb-8">
+                To ensure accurate profile creation, we first need to determine your blood type via our advanced Personality Assessment algorithm.
+            </p>
+            <button 
+                onClick={onRedirectToQuiz}
+                className="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+                <BrainCircuit className="w-5 h-5" />
+                Take Assessment First
+                <ArrowRight className="w-5 h-5 opacity-70" />
+            </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-lg mx-auto">
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
@@ -80,6 +111,20 @@ const Registration: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                {/* Determined Blood Type Banner */}
+                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center shrink-0">
+                        <Droplets className="w-6 h-6 text-indigo-600" />
+                    </div>
+                    <div>
+                        <div className="text-xs font-bold text-indigo-500 uppercase tracking-wider">Identified Blood Type</div>
+                        <div className="text-xl font-bold text-slate-800">Type {quizResult}</div>
+                    </div>
+                    <div className="ml-auto">
+                        <CheckCircle className="w-6 h-6 text-indigo-400" />
+                    </div>
+                </div>
+
                 <div>
                     <label className="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
                     <div className="relative">

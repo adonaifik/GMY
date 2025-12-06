@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import { quizQuestions } from '../services/bloodLogic';
 import { BloodType } from '../types';
 import { generatePersonalityAnalysis } from '../services/geminiService';
-import { Sparkles, RefreshCw, Loader2, BrainCircuit, Check, ChevronRight } from 'lucide-react';
+import { Sparkles, RefreshCw, Loader2, BrainCircuit, Check, ChevronRight, ArrowRight } from 'lucide-react';
 
-const PersonalityQuiz: React.FC = () => {
+interface PersonalityQuizProps {
+  onComplete?: (type: BloodType) => void;
+  onRegisterRedirect?: () => void;
+}
+
+const PersonalityQuiz: React.FC<PersonalityQuizProps> = ({ onComplete, onRegisterRedirect }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [scores, setScores] = useState<Record<BloodType, number>>({ A: 0, B: 0, AB: 0, O: 0 });
   const [completed, setCompleted] = useState(false);
@@ -50,6 +55,9 @@ const PersonalityQuiz: React.FC = () => {
     const predictedType = (Object.keys(finalScores) as BloodType[]).find(key => finalScores[key] === maxScore) || BloodType.O;
     
     setResult(predictedType);
+    if (onComplete) {
+      onComplete(predictedType);
+    }
 
     // Call Gemini for dynamic analysis
     const aiResponse = await generatePersonalityAnalysis(predictedType, selectedTraits);
@@ -99,13 +107,23 @@ const PersonalityQuiz: React.FC = () => {
                 )}
             </div>
 
-            <button 
-                onClick={reset}
-                className="flex items-center justify-center w-full py-4 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 active:scale-95 transition-all gap-2 shadow-lg hover:shadow-xl"
-            >
-                <RefreshCw className="w-5 h-5" />
-                Retake Quiz
-            </button>
+            <div className="flex flex-col gap-3">
+                {onRegisterRedirect && (
+                  <button 
+                    onClick={onRegisterRedirect}
+                    className="flex items-center justify-center w-full py-4 bg-gradient-to-r from-rose-600 to-rose-500 text-white rounded-xl font-bold hover:shadow-lg hover:from-rose-500 hover:to-rose-600 active:scale-[0.98] transition-all gap-2"
+                  >
+                      Save & Register Result <ArrowRight className="w-5 h-5" />
+                  </button>
+                )}
+                <button 
+                    onClick={reset}
+                    className="flex items-center justify-center w-full py-4 bg-white text-slate-600 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 active:scale-95 transition-all gap-2"
+                >
+                    <RefreshCw className="w-4 h-4" />
+                    Retake Quiz
+                </button>
+            </div>
         </div>
       </div>
     );

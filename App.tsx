@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TabView } from './types';
+import { TabView, BloodType } from './types';
 import GeneticsCalculator from './components/GeneticsCalculator';
 import PersonalityQuiz from './components/PersonalityQuiz';
 import GeminiConsultant from './components/GeminiConsultant';
@@ -11,6 +11,9 @@ const App: React.FC = () => {
   // Default set to 'quiz' so Personality appears first
   const [activeTab, setActiveTab] = useState<TabView>('quiz');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Lifted state: Store the quiz result here so it can be passed to Registration
+  const [quizBloodType, setQuizBloodType] = useState<BloodType | null>(null);
 
   const handleTabChange = (tab: TabView) => {
     if (tab === activeTab) return;
@@ -26,11 +29,23 @@ const App: React.FC = () => {
     }, 300);
   };
 
+  const handleQuizComplete = (type: BloodType) => {
+    setQuizBloodType(type);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
-      case 'quiz': return <PersonalityQuiz />;
+      case 'quiz': 
+        return <PersonalityQuiz 
+                  onComplete={handleQuizComplete} 
+                  onRegisterRedirect={() => handleTabChange('register')} 
+               />;
       case 'genetics': return <GeneticsCalculator />;
-      case 'register': return <Registration />;
+      case 'register': 
+        return <Registration 
+                  quizResult={quizBloodType} 
+                  onRedirectToQuiz={() => handleTabChange('quiz')} 
+               />;
       case 'results': return <ResultsLookup />;
       case 'ai-consult': return <GeminiConsultant />;
       default: return <PersonalityQuiz />;

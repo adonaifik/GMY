@@ -9,12 +9,10 @@ const generateUserCode = (): string => {
   return Math.random().toString(36).substring(2, 7).toUpperCase();
 };
 
-const registerUserLocal = (name: string, gender: string, email: string): UserProfile => {
+const registerUserLocal = (name: string, gender: string, email: string, bloodType: BloodType): UserProfile => {
   const code = generateUserCode();
-  const types = [BloodType.A, BloodType.B, BloodType.AB, BloodType.O];
   const factors = [RhFactor.Positive, RhFactor.Negative];
   
-  const randomType = types[Math.floor(Math.random() * types.length)];
   const randomFactor = factors[Math.floor(Math.random() * factors.length)];
 
   const newUser: UserProfile = {
@@ -23,7 +21,7 @@ const registerUserLocal = (name: string, gender: string, email: string): UserPro
     gender,
     email,
     registeredAt: new Date().toLocaleDateString(),
-    bloodType: randomType,
+    bloodType: bloodType,
     rhFactor: randomFactor
   };
 
@@ -45,7 +43,7 @@ const getUserByCodeLocal = (code: string): UserProfile | undefined => {
 
 // --- Async Service Methods ---
 
-export const registerUser = async (name: string, gender: string, email: string): Promise<UserProfile> => {
+export const registerUser = async (name: string, gender: string, email: string, bloodType: BloodType): Promise<UserProfile> => {
     try {
         // Attempt to contact the server
         const response = await fetch(`${API_URL}/register`, {
@@ -53,7 +51,7 @@ export const registerUser = async (name: string, gender: string, email: string):
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ name, gender, email }),
+            body: JSON.stringify({ name, gender, email, bloodType }),
         });
 
         if (!response.ok) {
@@ -65,7 +63,7 @@ export const registerUser = async (name: string, gender: string, email: string):
     } catch (error) {
         console.log("Server connection failed, falling back to local mode:", error);
         // Fallback to local storage if server is down (prevents app breakage in preview)
-        return registerUserLocal(name, gender, email);
+        return registerUserLocal(name, gender, email, bloodType);
     }
 };
 

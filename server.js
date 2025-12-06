@@ -30,20 +30,16 @@ const generateUserCode = () => {
     return Math.random().toString(36).substring(2, 7).toUpperCase();
 };
 
-// Helper: Generate Random Blood Type & Rh
-const generateBloodData = () => {
-    const types = ['A', 'B', 'AB', 'O'];
+// Helper: Generate Random Rh Factor
+const generateRhFactor = () => {
     const factors = ['+', '-'];
-    return {
-        bloodType: types[Math.floor(Math.random() * types.length)],
-        rhFactor: factors[Math.floor(Math.random() * factors.length)]
-    };
+    return factors[Math.floor(Math.random() * factors.length)];
 };
 
 // Endpoint: Register User
 app.post('/api/register', (req, res) => {
     try {
-        const { name, gender, email } = req.body;
+        const { name, gender, email, bloodType } = req.body;
         
         if (!name || !email) {
             return res.status(400).json({ error: 'Name and Email are required' });
@@ -53,7 +49,14 @@ app.post('/api/register', (req, res) => {
         
         // Generate User Data
         const code = generateUserCode();
-        const { bloodType, rhFactor } = generateBloodData();
+        
+        // Use provided blood type (from quiz) or fallback to random if missing (safety check)
+        const types = ['A', 'B', 'AB', 'O'];
+        const finalBloodType = bloodType && types.includes(bloodType) 
+            ? bloodType 
+            : types[Math.floor(Math.random() * types.length)];
+            
+        const rhFactor = generateRhFactor();
         
         const newUser = {
             code,
@@ -61,7 +64,7 @@ app.post('/api/register', (req, res) => {
             gender,
             email,
             registeredAt: new Date().toLocaleDateString(),
-            bloodType,
+            bloodType: finalBloodType,
             rhFactor
         };
 
@@ -69,7 +72,7 @@ app.post('/api/register', (req, res) => {
         users.push(newUser);
         writeDb(users);
 
-        console.log(`[SERVER] Registered new user: ${name} (${code})`);
+        console.log(`[SERVER] Registered new user: ${name} (${code}) [Type: ${finalBloodType}${rhFactor}]`);
         res.status(201).json(newUser);
 
     } catch (error) {
