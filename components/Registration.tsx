@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets } from 'lucide-react';
+import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets, Copy, Check } from 'lucide-react';
 import { registerUser } from '../services/userService';
 import { UserProfile, BloodType } from '../types';
 
@@ -16,6 +16,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
   });
   const [registeredUser, setRegisteredUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +37,14 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
     }, remainingTime);
   };
 
+  const handleCopy = () => {
+    if (registeredUser) {
+        navigator.clipboard.writeText(registeredUser.code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   if (registeredUser) {
     return (
       <div className="w-full max-w-lg mx-auto animate-scale-in">
@@ -49,9 +58,20 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
             <div className="bg-slate-900 rounded-2xl p-6 mb-8 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/20 rounded-full blur-2xl group-hover:bg-rose-500/30 transition-all"></div>
                 <p className="text-slate-400 text-xs uppercase tracking-widest font-bold mb-2">Your Unique Code</p>
-                <div className="text-5xl font-mono font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 tracking-wider">
-                    {registeredUser.code}
+                
+                <div className="flex items-center justify-center gap-4">
+                    <div className="text-5xl font-mono font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 tracking-wider">
+                        {registeredUser.code}
+                    </div>
+                    <button 
+                        onClick={handleCopy}
+                        className="p-3 bg-slate-800 rounded-xl hover:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-lg active:scale-95 border border-slate-700 hover:border-slate-500"
+                        title="Copy Code"
+                    >
+                        {copied ? <Check className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
+                    </button>
                 </div>
+                
                 <p className="text-slate-500 text-xs mt-2">Use this code to retrieve your results later.</p>
             </div>
 
@@ -59,6 +79,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                 onClick={() => {
                     setRegisteredUser(null);
                     setFormData({ name: '', gender: 'Select Gender', email: '' });
+                    setCopied(false);
                 }}
                 className="text-slate-500 font-semibold hover:text-slate-800 transition-colors"
             >
@@ -151,8 +172,6 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                             <option disabled>Select Gender</option>
                             <option>Male</option>
                             <option>Female</option>
-                            <option>Non-binary</option>
-                            <option>Prefer not to say</option>
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                             <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
