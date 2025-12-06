@@ -24,4 +24,14 @@ export interface GeneticResult {
   impossible: BloodType[];
 }
 
-export type TabView = 'genetics' | 'quiz' | 'ai-consult';
+export interface UserProfile {
+  code: string;
+  name: string;
+  gender: string;
+  email: string;
+  registeredAt: string;
+  bloodType: BloodType;
+  rhFactor: RhFactor;
+}
+
+export type TabView = 'genetics' | 'quiz' | 'ai-consult' | 'register' | 'results';
