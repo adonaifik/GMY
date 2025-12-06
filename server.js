@@ -8,7 +8,12 @@ const PORT = 3001;
 const DB_FILE = path.join(__dirname, 'database.json');
 
 // Middleware
-app.use(cors());
+// Enable CORS for ANY device on the network (e.g., phones accessing laptop IP)
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
 
 // Helper: Read Database
@@ -35,6 +40,11 @@ const generateRhFactor = () => {
     const factors = ['+', '-'];
     return factors[Math.floor(Math.random() * factors.length)];
 };
+
+// Endpoint: Health Check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
 
 // Endpoint: Register User
 app.post('/api/register', (req, res) => {
@@ -99,8 +109,9 @@ app.get('/api/user/:code', (req, res) => {
     }
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`BloodTesting Server running on http://localhost:${PORT}`);
-    console.log(`To make this accessible anywhere, deploy this script to a cloud host.`);
+// Start Server listening on all interfaces (0.0.0.0)
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`BloodTesting Server running on port ${PORT}`);
+    console.log(`Local:   http://localhost:${PORT}`);
+    console.log(`Network: http://<Your-IP-Address>:${PORT}`);
 });

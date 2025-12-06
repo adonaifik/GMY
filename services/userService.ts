@@ -1,7 +1,21 @@
 import { UserProfile, BloodType, RhFactor } from '../types';
 
 const STORAGE_KEY = 'bloodtesting_users';
-const API_URL = 'http://localhost:3001/api';
+
+// Dynamic API URL generation
+// This allows cross-device access on the same local network.
+// If accessing via localhost, it targets localhost:3001.
+// If accessing via 192.168.x.x, it targets 192.168.x.x:3001.
+const getApiUrl = () => {
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:3001/api';
+  }
+  // Assume server is running on the same host, port 3001
+  return `http://${hostname}:3001/api`;
+};
+
+const API_URL = getApiUrl();
 
 // --- Local Fallback Logic (for when server is offline) ---
 
@@ -30,7 +44,6 @@ const registerUserLocal = (name: string, gender: string, email: string, bloodTyp
   users.push(newUser);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
   
-  console.warn("Server unreachable. Used Local Storage fallback.");
   return newUser;
 };
 
@@ -42,6 +55,15 @@ const getUserByCodeLocal = (code: string): UserProfile | undefined => {
 };
 
 // --- Async Service Methods ---
+
+export const checkServerHealth = async (): Promise<boolean> => {
+    try {
+        const response = await fetch(`${API_URL}/health`, { method: 'GET' });
+        return response.ok;
+    } catch (e) {
+        return false;
+    }
+};
 
 export const registerUser = async (name: string, gender: string, email: string, bloodType: BloodType): Promise<UserProfile> => {
     try {
@@ -61,8 +83,8 @@ export const registerUser = async (name: string, gender: string, email: string, 
         return await response.json();
 
     } catch (error) {
-        console.log("Server connection failed, falling back to local mode:", error);
-        // Fallback to local storage if server is down (prevents app breakage in preview)
+        console.warn("Server connection failed, falling back to local mode.");
+        // Fallback to local storage if server is down
         return registerUserLocal(name, gender, email, bloodType);
     }
 };
@@ -78,7 +100,7 @@ export const getUserByCode = async (code: string): Promise<UserProfile | undefin
         return await response.json();
 
     } catch (error) {
-        console.log("Server connection failed, falling back to local mode:", error);
+        console.warn("Server connection failed, falling back to local mode.");
         // Fallback to local storage
         return getUserByCodeLocal(code);
     }

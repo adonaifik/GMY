@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets, Copy, Check } from 'lucide-react';
-import { registerUser } from '../services/userService';
+import React, { useState, useEffect } from 'react';
+import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets, Copy, Check, Wifi, WifiOff } from 'lucide-react';
+import { registerUser, checkServerHealth } from '../services/userService';
 import { UserProfile, BloodType } from '../types';
 
 interface RegistrationProps {
@@ -11,26 +11,29 @@ interface RegistrationProps {
 const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQuiz }) => {
   const [formData, setFormData] = useState({
     name: '',
-    gender: '', // Initialize as empty for validation
+    gender: '', 
     email: ''
   });
   const [registeredUser, setRegisteredUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isServerOnline, setIsServerOnline] = useState(false);
+
+  useEffect(() => {
+    checkServerHealth().then(setIsServerOnline);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quizResult) return;
     
-    // Explicit validation check
-    if (!formData.gender || formData.gender === 'Select Gender') {
+    if (!formData.gender) {
         alert("Please select a valid gender.");
         return;
     }
 
     setLoading(true);
     
-    // Call the async service
     const start = Date.now();
     const user = await registerUser(formData.name, formData.gender, formData.email, quizResult);
     const end = Date.now();
@@ -43,11 +46,30 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
     }, remainingTime);
   };
 
-  const handleCopy = () => {
-    if (registeredUser) {
-        navigator.clipboard.writeText(registeredUser.code);
+  const handleCopy = async () => {
+    if (!registeredUser) return;
+    
+    try {
+        // Primary method for Secure Contexts (HTTPS / Localhost)
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(registeredUser.code);
+        } else {
+            // Fallback method for HTTP Local Network IPs
+            const textArea = document.createElement("textarea");
+            textArea.value = registeredUser.code;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
+        
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
     }
   };
 
@@ -59,7 +81,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                 <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Registration Complete!</h2>
-            <p className="text-slate-500 mb-8">Your profile has been securely saved to the database.</p>
+            <p className="text-slate-500 mb-8">Your profile has been securely saved.</p>
             
             <div className="bg-slate-900 rounded-2xl p-6 mb-8 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/20 rounded-full blur-2xl group-hover:bg-rose-500/30 transition-all"></div>
@@ -81,6 +103,15 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                 
                 <p className="text-slate-500 text-xs mt-2">Use this code to retrieve your results later.</p>
             </div>
+
+            {!isServerOnline && (
+                <div className="mb-6 p-4 bg-amber-50 text-amber-700 text-sm rounded-xl flex items-start gap-3 text-left">
+                    <WifiOff className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <p>
+                        <strong>Note:</strong> Server is unreachable. Code is valid on <u>this device only</u>. Connect to the server to enable cross-device access.
+                    </p>
+                </div>
+            )}
 
             <button 
                 onClick={() => {
@@ -132,9 +163,19 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                 </div>
                 <p className="text-slate-400">Join the server database to track your blood analytics.</p>
                 
-                {/* Visual Indicator for connection type (Simulated) */}
-                <div className="absolute top-4 right-4 flex gap-2">
-                     <div title="Server Connection Ready" className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                {/* Visual Indicator for connection type */}
+                <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
+                     {isServerOnline ? (
+                         <>
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span className="text-xs font-medium text-emerald-400">Synced</span>
+                         </>
+                     ) : (
+                         <>
+                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                            <span className="text-xs font-medium text-amber-400">Local Only</span>
+                         </>
+                     )}
                 </div>
             </div>
 
@@ -216,9 +257,10 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                             </>
                         )}
                     </button>
-                    <p className="text-center text-xs text-slate-400 mt-4">
-                        Data will be stored securely on the configured server (or locally if offline).
-                    </p>
+                    <div className="flex items-center justify-center gap-2 mt-4 text-xs text-slate-400">
+                         {isServerOnline ? <Wifi className="w-3 h-3 text-emerald-500" /> : <WifiOff className="w-3 h-3 text-amber-500" />}
+                         <span>{isServerOnline ? "Cross-device access enabled" : "Offline Mode - Data stored locally"}</span>
+                    </div>
                 </div>
             </form>
         </div>
