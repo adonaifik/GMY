@@ -11,7 +11,7 @@ interface RegistrationProps {
 const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQuiz }) => {
   const [formData, setFormData] = useState({
     name: '',
-    gender: 'Select Gender',
+    gender: '', // Initialize as empty for validation
     email: ''
   });
   const [registeredUser, setRegisteredUser] = useState<UserProfile | null>(null);
@@ -20,7 +20,13 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!quizResult) return; // Should not happen due to UI gate, but good for safety
+    if (!quizResult) return;
+    
+    // Explicit validation check
+    if (!formData.gender || formData.gender === 'Select Gender') {
+        alert("Please select a valid gender.");
+        return;
+    }
 
     setLoading(true);
     
@@ -64,6 +70,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                         {registeredUser.code}
                     </div>
                     <button 
+                        type="button"
                         onClick={handleCopy}
                         className="p-3 bg-slate-800 rounded-xl hover:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-lg active:scale-95 border border-slate-700 hover:border-slate-500"
                         title="Copy Code"
@@ -78,7 +85,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
             <button 
                 onClick={() => {
                     setRegisteredUser(null);
-                    setFormData({ name: '', gender: 'Select Gender', email: '' });
+                    setFormData({ name: '', gender: '', email: '' });
                     setCopied(false);
                 }}
                 className="text-slate-500 font-semibold hover:text-slate-800 transition-colors"
@@ -165,13 +172,14 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                     <label className="block text-sm font-bold text-slate-700 mb-2">Gender</label>
                     <div className="relative">
                         <select 
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all appearance-none bg-white"
+                            required
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all appearance-none bg-white invalid:text-slate-400"
                             value={formData.gender}
                             onChange={(e) => setFormData({...formData, gender: e.target.value})}
                         >
-                            <option disabled>Select Gender</option>
-                            <option>Male</option>
-                            <option>Female</option>
+                            <option value="" disabled>Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                             <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
