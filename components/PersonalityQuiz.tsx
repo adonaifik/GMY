@@ -12,8 +12,17 @@ const PersonalityQuiz: React.FC = () => {
   const [analysis, setAnalysis] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [selectedTraits, setSelectedTraits] = useState<string[]>([]);
+  
+  // New state for animation control
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
 
-  const handleOptionSelect = (points: Record<BloodType, number>, text: string) => {
+  const handleOptionSelect = (points: Record<BloodType, number>, text: string, index: number) => {
+    if (isTransitioning) return; // Prevent multiple clicks
+
+    setSelectedOptionIndex(index);
+    setIsTransitioning(true);
+
     const newScores = { ...scores };
     (Object.keys(points) as BloodType[]).forEach(type => {
       newScores[type] += points[type];
@@ -21,11 +30,16 @@ const PersonalityQuiz: React.FC = () => {
     setScores(newScores);
     setSelectedTraits(prev => [...prev, text]);
 
-    if (currentQuestion < quizQuestions.length - 1) {
-      setCurrentQuestion(prev => prev + 1);
-    } else {
-      finishQuiz(newScores);
-    }
+    // Delay to show selection state before moving to next question
+    setTimeout(() => {
+      if (currentQuestion < quizQuestions.length - 1) {
+        setCurrentQuestion(prev => prev + 1);
+        setIsTransitioning(false);
+        setSelectedOptionIndex(null);
+      } else {
+        finishQuiz(newScores);
+      }
+    }, 450);
   };
 
   const finishQuiz = async (finalScores: Record<BloodType, number>) => {
@@ -50,6 +64,8 @@ const PersonalityQuiz: React.FC = () => {
     setResult(null);
     setAnalysis("");
     setSelectedTraits([]);
+    setIsTransitioning(false);
+    setSelectedOptionIndex(null);
   };
 
   const progressPercentage = ((currentQuestion + 1) / quizQuestions.length) * 100;
@@ -111,15 +127,15 @@ const PersonalityQuiz: React.FC = () => {
             {/* Continuous Progress Bar */}
             <div className="w-full bg-indigo-900/30 h-2 rounded-full overflow-hidden backdrop-blur-sm">
                 <div 
-                    className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-700 ease-out rounded-full"
+                    className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) rounded-full"
                     style={{ width: `${progressPercentage}%` }}
                 ></div>
             </div>
         </div>
 
         {/* Question Area */}
-        <div className="p-8 flex-1 flex flex-col justify-center animate-slide-up" key={currentQuestion}>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-8 leading-snug">
+        <div className="p-8 flex-1 flex flex-col justify-center" key={currentQuestion}>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-8 leading-snug animate-slide-up">
                 {question.question}
             </h2>
             
@@ -127,15 +143,33 @@ const PersonalityQuiz: React.FC = () => {
                 {question.options.map((opt, idx) => (
                     <button
                         key={idx}
-                        onClick={() => handleOptionSelect(opt.typePoints, opt.text)}
-                        className="group relative p-5 text-left rounded-xl border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 active:scale-[0.98] transition-all duration-200"
+                        onClick={() => handleOptionSelect(opt.typePoints, opt.text, idx)}
+                        style={{ 
+                            animationDelay: `${idx * 75}ms`,
+                            opacity: 0 // Start invisible, handled by fill-mode forwards in animation
+                        }}
+                        className={`group relative p-5 text-left rounded-xl border-2 transition-all duration-300 animate-slide-up
+                            ${selectedOptionIndex === idx 
+                                ? 'border-indigo-600 bg-indigo-50 shadow-md scale-[1.02] z-10' 
+                                : 'border-slate-100 hover:border-indigo-400 hover:bg-indigo-50 active:scale-[0.98]'
+                            }
+                            ${isTransitioning && selectedOptionIndex !== idx ? 'opacity-50 scale-95' : ''}
+                        `}
                     >
                         <div className="flex items-center justify-between">
-                            <span className="font-medium text-slate-700 group-hover:text-indigo-900 text-lg transition-colors">
+                            <span className={`font-medium text-lg transition-colors ${selectedOptionIndex === idx ? 'text-indigo-900 font-bold' : 'text-slate-700 group-hover:text-indigo-900'}`}>
                                 {opt.text}
                             </span>
-                            <div className="w-6 h-6 rounded-full border-2 border-slate-300 group-hover:border-indigo-500 group-hover:bg-indigo-500 transition-all flex items-center justify-center">
-                                <ChevronRight className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity -ml-0.5" />
+                            <div className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center
+                                ${selectedOptionIndex === idx 
+                                    ? 'border-indigo-600 bg-indigo-600 scale-110' 
+                                    : 'border-slate-300 group-hover:border-indigo-500'
+                                }`}>
+                                {(selectedOptionIndex === idx) ? (
+                                    <Check className="w-4 h-4 text-white animate-scale-in" />
+                                ) : (
+                                    <ChevronRight className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 group-hover:bg-indigo-500 rounded-full transition-all" />
+                                )}
                             </div>
                         </div>
                     </button>
