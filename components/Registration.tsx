@@ -160,7 +160,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                         <input 
                             required
                             type="text" 
-                            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
                             placeholder="John Doe"
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -173,11 +173,11 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                     <div className="relative">
                         <select 
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all appearance-none bg-white invalid:text-slate-400"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all appearance-none invalid:text-slate-400"
                             value={formData.gender}
                             onChange={(e) => setFormData({...formData, gender: e.target.value})}
                         >
-                            <option value="" disabled>Select Gender</option>
+                            <option value="" disabled className="text-slate-400">Select Gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
@@ -194,7 +194,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                         <input 
                             required
                             type="email" 
-                            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all"
                             placeholder="john@example.com"
                             value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})}

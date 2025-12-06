@@ -82,7 +82,7 @@ const GeminiConsultant: React.FC = () => {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Ask about blood compatibility..."
-                        className="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-slate-50"
+                        className="flex-1 px-4 py-3 rounded-xl border border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                     />
                     <button 
                         type="submit" 

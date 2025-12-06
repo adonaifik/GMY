@@ -59,7 +59,7 @@ const ResultsLookup: React.FC = () => {
                                 value={code}
                                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                                 placeholder="e.g. X7K9P"
-                                className="w-full px-4 py-4 text-center text-2xl font-mono tracking-[0.2em] rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-0 uppercase transition-all"
+                                className="w-full px-4 py-4 text-center text-2xl font-mono tracking-[0.2em] rounded-xl border-2 border-slate-700 bg-slate-800 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-0 uppercase transition-all"
                             />
                         </div>
                         <button 
