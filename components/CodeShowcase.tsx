@@ -25,7 +25,7 @@ const CodeShowcase: React.FC = () => {
                     {codeSnippets.map(snippet => (
                         <button
                             key={snippet.language}
-                            onClick={() => setActiveLang(snippet.language)}
+                            onClick={() => setActiveLang(snippet.language as 'python' | 'java' | 'css')}
                             className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all mb-2 flex items-center justify-between ${
                                 activeLang === snippet.language 
                                 ? 'bg-slate-900 text-white shadow-md' 
