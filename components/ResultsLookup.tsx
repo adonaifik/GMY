@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, FileText, User, Calendar, Mail, AlertCircle, Droplets } from 'lucide-react';
+import { Search, FileText, User, Calendar, Mail, AlertCircle, Droplets, Loader2, Database } from 'lucide-react';
 import { getUserByCode } from '../services/userService';
 import { UserProfile } from '../types';
 
@@ -7,9 +7,10 @@ const ResultsLookup: React.FC = () => {
   const [code, setCode] = useState('');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setProfile(null);
@@ -20,13 +21,21 @@ const ResultsLookup: React.FC = () => {
         return;
     }
 
-    const foundUser = getUserByCode(code);
-    setSearched(true);
-    
-    if (foundUser) {
-        setProfile(foundUser);
-    } else {
-        setError("No profile found with that code.");
+    setLoading(true);
+
+    try {
+        const foundUser = await getUserByCode(code);
+        setSearched(true);
+        
+        if (foundUser) {
+            setProfile(foundUser);
+        } else {
+            setError("No profile found in database with that code.");
+        }
+    } catch (err) {
+        setError("Connection error. Please try again.");
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -37,7 +46,7 @@ const ResultsLookup: React.FC = () => {
             <div className="md:col-span-5 flex flex-col gap-6">
                 <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8">
                     <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <Search className="w-6 h-6 text-indigo-600" />
+                        <Database className="w-6 h-6 text-indigo-600" />
                         Retrieve Results
                     </h2>
                     
@@ -55,9 +64,10 @@ const ResultsLookup: React.FC = () => {
                         </div>
                         <button 
                             type="submit"
-                            className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-colors"
+                            disabled={loading}
+                            className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
                         >
-                            View Profile
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Search Database"}
                         </button>
                     </form>
 
@@ -129,7 +139,7 @@ const ResultsLookup: React.FC = () => {
                                     Status
                                 </h4>
                                 <p className="text-slate-500 text-sm leading-relaxed">
-                                    Profile is active. Your blood type has been determined. You can use this information in the Genetics Calculator.
+                                    Profile retrieved from database. Your blood type has been determined. You can use this information in the Genetics Calculator.
                                 </p>
                             </div>
                          </div>

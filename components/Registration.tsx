@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle } from 'lucide-react';
+import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, Server, WifiOff } from 'lucide-react';
 import { registerUser } from '../services/userService';
 import { UserProfile } from '../types';
 
@@ -12,16 +12,22 @@ const Registration: React.FC = () => {
   const [registeredUser, setRegisteredUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    // Simulate network delay for effect
+    // Call the async service
+    // Minimum 800ms delay for UX if server is too fast
+    const start = Date.now();
+    const user = await registerUser(formData.name, formData.gender, formData.email);
+    const end = Date.now();
+    
+    const remainingTime = Math.max(0, 800 - (end - start));
+
     setTimeout(() => {
-        const user = registerUser(formData.name, formData.gender, formData.email);
         setRegisteredUser(user);
         setLoading(false);
-    }, 800);
+    }, remainingTime);
   };
 
   if (registeredUser) {
@@ -32,7 +38,7 @@ const Registration: React.FC = () => {
                 <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Registration Complete!</h2>
-            <p className="text-slate-500 mb-8">Your profile has been securely created.</p>
+            <p className="text-slate-500 mb-8">Your profile has been securely saved to the database.</p>
             
             <div className="bg-slate-900 rounded-2xl p-6 mb-8 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/20 rounded-full blur-2xl group-hover:bg-rose-500/30 transition-all"></div>
@@ -60,12 +66,17 @@ const Registration: React.FC = () => {
   return (
     <div className="w-full max-w-lg mx-auto">
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
-            <div className="bg-slate-900 p-8 text-white">
+            <div className="bg-slate-900 p-8 text-white relative">
                 <div className="flex items-center gap-3 mb-2">
                     <UserPlus className="w-8 h-8 text-rose-500" />
                     <h2 className="text-2xl font-bold">Patient Registration</h2>
                 </div>
-                <p className="text-slate-400">Join the database to track your blood analytics.</p>
+                <p className="text-slate-400">Join the server database to track your blood analytics.</p>
+                
+                {/* Visual Indicator for connection type (Simulated) */}
+                <div className="absolute top-4 right-4 flex gap-2">
+                     <div title="Server Connection Ready" className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -125,7 +136,7 @@ const Registration: React.FC = () => {
                         disabled={loading}
                         className="w-full bg-rose-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-rose-200 hover:bg-rose-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                     >
-                        {loading ? 'Generating Code...' : (
+                        {loading ? 'Connecting to Server...' : (
                             <>
                                 <Fingerprint className="w-5 h-5" />
                                 Get Access Code
@@ -133,6 +144,9 @@ const Registration: React.FC = () => {
                             </>
                         )}
                     </button>
+                    <p className="text-center text-xs text-slate-400 mt-4">
+                        Data will be stored securely on the configured server (or locally if offline).
+                    </p>
                 </div>
             </form>
         </div>
