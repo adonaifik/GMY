@@ -78,9 +78,6 @@ const App: React.FC = () => {
             <p className="text-slate-400 text-sm">
                 © {new Date().getFullYear()} BloodTesting. Educational purposes only. Not for clinical diagnosis.
             </p>
-             <p className="text-slate-300 text-xs mt-2">
-                Built with React, Tailwind, and Gemini AI.
-            </p>
         </div>
       </footer>
     </div>
