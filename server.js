@@ -11,7 +11,7 @@ const DB_FILE = path.join(__dirname, 'database.json');
 // Enable CORS for ANY device on the network (e.g., phones accessing laptop IP)
 app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
     allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
@@ -88,6 +88,34 @@ app.post('/api/register', (req, res) => {
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Endpoint: Update User
+app.put('/api/user/:code', (req, res) => {
+    try {
+        const code = req.params.code.toUpperCase();
+        const { name, gender, email } = req.body;
+        
+        const users = readDb();
+        const userIndex = users.findIndex(u => u.code === code);
+        
+        if (userIndex === -1) {
+             return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Update fields
+        if (name) users[userIndex].name = name;
+        if (gender) users[userIndex].gender = gender;
+        if (email) users[userIndex].email = email;
+        
+        writeDb(users);
+        
+        console.log(`[SERVER] Updated user: ${name} (${code})`);
+        res.json(users[userIndex]);
+    } catch (error) {
+         console.error("Update error:", error);
+         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 

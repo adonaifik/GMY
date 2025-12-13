@@ -47,6 +47,22 @@ const registerUserLocal = (name: string, gender: string, email: string, bloodTyp
   return newUser;
 };
 
+const updateUserLocal = (code: string, updates: Partial<UserProfile>): UserProfile | undefined => {
+  const existingData = localStorage.getItem(STORAGE_KEY);
+  if (!existingData) return undefined;
+  
+  const users: UserProfile[] = JSON.parse(existingData);
+  const index = users.findIndex(u => u.code.toUpperCase() === code.toUpperCase());
+  
+  if (index === -1) return undefined;
+  
+  const updatedUser = { ...users[index], ...updates };
+  users[index] = updatedUser;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  
+  return updatedUser;
+};
+
 const getUserByCodeLocal = (code: string): UserProfile | undefined => {
   const existingData = localStorage.getItem(STORAGE_KEY);
   if (!existingData) return undefined;
@@ -86,6 +102,32 @@ export const registerUser = async (name: string, gender: string, email: string, 
         console.warn("Server connection failed, falling back to local mode.");
         // Fallback to local storage if server is down
         return registerUserLocal(name, gender, email, bloodType);
+    }
+};
+
+export const updateUser = async (code: string, updates: { name: string; gender: string; email: string }): Promise<UserProfile> => {
+    try {
+        const response = await fetch(`${API_URL}/user/${code}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updates),
+        });
+
+        if (!response.ok) {
+            throw new Error('Server response was not ok');
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.warn("Server connection failed, falling back to local mode.");
+        const localUpdated = updateUserLocal(code, updates);
+        if (!localUpdated) {
+             throw new Error("Could not update user locally or on server");
+        }
+        return localUpdated;
     }
 };
 

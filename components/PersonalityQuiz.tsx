@@ -137,17 +137,34 @@ const PersonalityQuiz: React.FC<PersonalityQuizProps> = ({ onComplete, onRegiste
         {/* Header with Progress Bar */}
         <div className="bg-indigo-600 px-8 py-6 text-white relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-indigo-800 opacity-20"></div>
-            <div className="flex justify-between items-end mb-2 relative z-10">
-                <span className="font-mono text-sm opacity-80 font-bold tracking-widest">QUESTION {currentQuestion + 1} OF {quizQuestions.length}</span>
-                <span className="text-2xl font-bold opacity-100">{Math.round(progressPercentage)}%</span>
+            
+            <div className="flex justify-between items-end mb-3 relative z-10">
+                <span className="font-mono text-xs font-bold tracking-widest text-indigo-200 uppercase flex items-center gap-2">
+                   <span className="bg-indigo-500/30 px-2 py-1 rounded">Question {currentQuestion + 1} / {quizQuestions.length}</span>
+                </span>
+                <span 
+                    key={progressPercentage} 
+                    className="text-3xl font-black tracking-tight animate-scale-in inline-block text-transparent bg-clip-text bg-gradient-to-b from-white to-indigo-200 drop-shadow-sm"
+                >
+                    {Math.round(progressPercentage)}%
+                </span>
             </div>
             
-            {/* Continuous Progress Bar */}
-            <div className="w-full bg-indigo-900/30 h-2 rounded-full overflow-hidden backdrop-blur-sm">
+            {/* Dynamic Progress Bar */}
+            <div className="w-full bg-black/20 h-4 rounded-full overflow-hidden backdrop-blur-md border border-white/10 relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]">
                 <div 
-                    className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) rounded-full"
-                    style={{ width: `${progressPercentage}%` }}
-                ></div>
+                    className="h-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-300 shadow-[0_0_20px_rgba(45,212,191,0.4)] rounded-full relative"
+                    style={{ 
+                        width: `${progressPercentage === 0 ? 5 : progressPercentage}%`,
+                        transition: "width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)" 
+                    }}
+                >
+                    {/* Glossy Top Highlight */}
+                    <div className="absolute top-0 left-0 right-0 h-[40%] bg-white/40 rounded-full"></div>
+                    
+                    {/* Leading Particle */}
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,1)]"></div>
+                </div>
             </div>
         </div>
 

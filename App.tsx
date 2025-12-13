@@ -58,13 +58,19 @@ const App: React.FC = () => {
       <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-rose-900/20 overflow-hidden">
-                <Droplets className="w-6 h-6 text-white animate-gentle-wiggle" />
+            {/* Logo Section */}
+            <div className="flex items-center gap-4 group cursor-pointer" onClick={() => handleTabChange('quiz')}>
+              <div className="relative">
+                <div className="absolute inset-0 bg-rose-500/40 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
+                <Droplets className="w-10 h-10 text-rose-500 animate-gentle-wiggle drop-shadow-[0_0_15px_rgba(244,63,94,0.6)] transition-all duration-300 group-hover:scale-110" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-white tracking-tight">BloodTesting</h1>
-                <p className="text-xs text-slate-400 font-medium">Interactive Blood Labs</p>
+              <div className="flex flex-col justify-center">
+                <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-rose-100 to-rose-200 tracking-tight group-hover:text-rose-100 transition-colors">
+                  BloodTesting
+                </h1>
+                <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.2em] opacity-80 group-hover:opacity-100 transition-opacity">
+                  Interactive Labs
+                </p>
               </div>
             </div>
 
