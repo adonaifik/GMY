@@ -55,22 +55,29 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header - Dark Mode */}
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
+      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-2xl shadow-slate-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            {/* Logo Section */}
-            <div className="flex items-center gap-4 group cursor-pointer" onClick={() => handleTabChange('quiz')}>
-              <div className="relative">
-                <div className="absolute inset-0 bg-rose-500/40 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-pulse"></div>
-                <Droplets className="w-10 h-10 text-rose-500 animate-gentle-wiggle drop-shadow-[0_0_15px_rgba(244,63,94,0.6)] transition-all duration-300 group-hover:scale-110" />
+          <div className="flex justify-between items-center h-24">
+            {/* Logo Section - Bigger & Dynamic */}
+            <div className="flex items-center gap-5 group cursor-pointer select-none" onClick={() => handleTabChange('quiz')}>
+              <div className="relative z-10">
+                 {/* Intense Glow Effect */}
+                 <div className="absolute inset-0 bg-rose-600 blur-[30px] rounded-full opacity-20 group-hover:opacity-50 transition-opacity duration-700 animate-pulse"></div>
+                 
+                 {/* Main Icon - Removed pinging white flash */}
+                 <Droplets className="relative w-14 h-14 text-rose-500 animate-gentle-wiggle drop-shadow-[0_0_20px_rgba(244,63,94,0.8)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6" />
               </div>
+              
               <div className="flex flex-col justify-center">
-                <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-rose-100 to-rose-200 tracking-tight group-hover:text-rose-100 transition-colors">
+                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-rose-100 to-rose-200 tracking-tighter group-hover:from-rose-100 group-hover:to-white transition-all duration-500 drop-shadow-sm">
                   BloodTesting
                 </h1>
-                <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.2em] opacity-80 group-hover:opacity-100 transition-opacity">
-                  Interactive Labs
-                </p>
+                <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="h-[2px] w-4 bg-rose-500 rounded-full group-hover:w-full transition-all duration-700 ease-out"></div>
+                    <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.3em] opacity-80 whitespace-nowrap group-hover:text-rose-400 transition-colors">
+                      Interactive Labs
+                    </p>
+                </div>
               </div>
             </div>
 

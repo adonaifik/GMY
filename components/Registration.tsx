@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets, Copy, Check, Wifi, WifiOff } from 'lucide-react';
+import { UserPlus, Mail, User, Fingerprint, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets, Copy, Check, Wifi, WifiOff, RotateCw } from 'lucide-react';
 import { registerUser, checkServerHealth } from '../services/userService';
 import { UserProfile, BloodType } from '../types';
 
@@ -18,9 +18,33 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isServerOnline, setIsServerOnline] = useState(false);
+  const [checkingHealth, setCheckingHealth] = useState(false);
+
+  const checkConnection = async () => {
+    setCheckingHealth(true);
+    const online = await checkServerHealth();
+    setIsServerOnline(online);
+    setCheckingHealth(false);
+  };
 
   useEffect(() => {
-    checkServerHealth().then(setIsServerOnline);
+    // Initial check
+    checkConnection();
+
+    // Listen for internet connection changes
+    const handleOnline = () => {
+        console.log("Internet connected, checking server...");
+        checkConnection();
+    };
+    const handleOffline = () => setIsServerOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,10 +58,16 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
 
     setLoading(true);
     
+    // Attempt registration
     const start = Date.now();
     const user = await registerUser(formData.name, formData.gender, formData.email, quizResult);
     const end = Date.now();
     
+    // Update connection status based on the success of the actual request
+    // If we successfully registered but isServerOnline was false, this confirms we are actually online
+    // If it fell back to local, this check will likely confirm offline
+    checkConnection();
+
     const remainingTime = Math.max(0, 800 - (end - start));
 
     setTimeout(() => {
@@ -108,7 +138,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                 <div className="mb-6 p-4 bg-amber-50 text-amber-700 text-sm rounded-xl flex items-start gap-3 text-left">
                     <WifiOff className="w-5 h-5 flex-shrink-0 mt-0.5" />
                     <p>
-                        <strong>Note:</strong> Server is unreachable. Code is valid on <u>this device only</u>. Connect to the server to enable cross-device access.
+                        <strong>Saved Locally:</strong> Connection to backend server failed. Data saved to browser storage.
                     </p>
                 </div>
             )}
@@ -165,16 +195,22 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                 
                 {/* Visual Indicator for connection type */}
                 <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700">
-                     {isServerOnline ? (
-                         <>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span className="text-xs font-medium text-emerald-400">Synced</span>
-                         </>
+                     {checkingHealth ? (
+                         <RotateCw className="w-3 h-3 text-slate-400 animate-spin" />
+                     ) : isServerOnline ? (
+                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                      ) : (
-                         <>
-                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                            <span className="text-xs font-medium text-amber-400">Local Only</span>
-                         </>
+                         <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                     )}
+                     
+                     <span className={`text-xs font-medium ${isServerOnline ? 'text-emerald-400' : 'text-amber-400'}`}>
+                         {isServerOnline ? "Synced" : "Local"}
+                     </span>
+                     
+                     {!isServerOnline && !checkingHealth && (
+                         <button onClick={checkConnection} className="ml-1 p-1 hover:bg-slate-700 rounded-full transition-colors" title="Retry Connection">
+                             <RotateCw className="w-3 h-3 text-slate-400 hover:text-white" />
+                         </button>
                      )}
                 </div>
             </div>
@@ -259,7 +295,7 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                     </button>
                     <div className="flex items-center justify-center gap-2 mt-4 text-xs text-slate-400">
                          {isServerOnline ? <Wifi className="w-3 h-3 text-emerald-500" /> : <WifiOff className="w-3 h-3 text-amber-500" />}
-                         <span>{isServerOnline ? "Cross-device access enabled" : "Offline Mode - Data stored locally"}</span>
+                         <span>{isServerOnline ? "Cross-device access enabled" : "Server unreachable - Saving locally"}</span>
                     </div>
                 </div>
             </form>

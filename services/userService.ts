@@ -3,16 +3,20 @@ import { UserProfile, BloodType, RhFactor } from '../types';
 const STORAGE_KEY = 'bloodtesting_users';
 
 // Dynamic API URL generation
-// This allows cross-device access on the same local network.
-// If accessing via localhost, it targets localhost:3001.
-// If accessing via 192.168.x.x, it targets 192.168.x.x:3001.
 const getApiUrl = () => {
-  const hostname = window.location.hostname;
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+  if (typeof window === 'undefined') return 'http://localhost:3001/api';
+
+  const { hostname, protocol } = window.location;
+  
+  // Handle case where file is opened directly (file://) or explicit localhost
+  if (!hostname || protocol === 'file:' || hostname === 'localhost' || hostname === '127.0.0.1') {
     return 'http://localhost:3001/api';
   }
-  // Assume server is running on the same host, port 3001
-  return `http://${hostname}:3001/api`;
+  
+  // Use current protocol to avoid Mixed Content errors, but keep port 3001
+  // Note: If frontend is HTTPS and backend is HTTP, this will still fail due to browser security (Mixed Content).
+  // Ideally, backend should be proxied or run on HTTPS in production.
+  return `${protocol}//${hostname}:3001/api`;
 };
 
 const API_URL = getApiUrl();
@@ -74,7 +78,11 @@ const getUserByCodeLocal = (code: string): UserProfile | undefined => {
 
 export const checkServerHealth = async (): Promise<boolean> => {
     try {
-        const response = await fetch(`${API_URL}/health`, { method: 'GET' });
+        // Use no-store to prevent caching of failed/offline status
+        const response = await fetch(`${API_URL}/health`, { 
+            method: 'GET',
+            cache: 'no-store'
+        });
         return response.ok;
     } catch (e) {
         return false;
@@ -83,14 +91,19 @@ export const checkServerHealth = async (): Promise<boolean> => {
 
 export const registerUser = async (name: string, gender: string, email: string, bloodType: BloodType): Promise<UserProfile> => {
     try {
-        // Attempt to contact the server
+        // Attempt to contact the server with a timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ name, gender, email, bloodType }),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             throw new Error('Server response was not ok');
@@ -99,21 +112,26 @@ export const registerUser = async (name: string, gender: string, email: string, 
         return await response.json();
 
     } catch (error) {
-        console.warn("Server connection failed, falling back to local mode.");
-        // Fallback to local storage if server is down
+        console.warn("Server connection failed, falling back to local mode.", error);
+        // Fallback to local storage if server is down or unreachable
         return registerUserLocal(name, gender, email, bloodType);
     }
 };
 
 export const updateUser = async (code: string, updates: { name: string; gender: string; email: string }): Promise<UserProfile> => {
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         const response = await fetch(`${API_URL}/user/${code}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(updates),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             throw new Error('Server response was not ok');
@@ -133,8 +151,14 @@ export const updateUser = async (code: string, updates: { name: string; gender: 
 
 export const getUserByCode = async (code: string): Promise<UserProfile | undefined> => {
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         // Attempt to contact the server
-        const response = await fetch(`${API_URL}/user/${code}`);
+        const response = await fetch(`${API_URL}/user/${code}`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         
         if (response.status === 404) return undefined;
         if (!response.ok) throw new Error('Server error');
