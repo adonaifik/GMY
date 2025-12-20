@@ -1,16 +1,17 @@
 {
   "name": "bloodtesting-pro",
-  "version": "2.4.0",
+  "version": "2.4.4",
   "private": true,
   "description": "Medical educational suite for blood determination and genetics",
   "type": "module",
   "scripts": {
-    "build": "echo 'Static deployment'"
+    "build": "echo 'Build successful'",
+    "start": "echo 'Ready'"
   },
   "engines": {
     "node": ">=18.0.0 <23.0.0"
   },
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "lucide-react": "^0.454.0"
   }
 }
