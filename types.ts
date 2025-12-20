@@ -1,3 +1,4 @@
+
 export enum BloodType {
   A = 'A',
   B = 'B',
@@ -34,4 +35,4 @@ export interface UserProfile {
   rhFactor: RhFactor;
 }
 
-export type TabView = 'genetics' | 'quiz' | 'ai-consult' | 'register' | 'results';
+export type TabView = 'genetics' | 'quiz' | 'ai-consult' | 'register' | 'results' | 'code' | 'compatibility';

@@ -10,7 +10,7 @@ const getClient = () => {
 
 export const generatePersonalityAnalysis = async (bloodType: string, traits: string[]) => {
     try {
-        const client = getClient();
+        const ai = getClient();
         const prompt = `
             Based on the Japanese Blood Type Personality Theory (Ketsueki-gata), 
             provide a fun, engaging, and slightly scientific-sounding personality analysis 
@@ -21,8 +21,8 @@ export const generatePersonalityAnalysis = async (bloodType: string, traits: str
             Keep it under 150 words. Be encouraging but honest about the stereotypes.
         `;
         
-        const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
             contents: prompt,
         });
 
@@ -35,7 +35,7 @@ export const generatePersonalityAnalysis = async (bloodType: string, traits: str
 
 export const askMedicalConsultant = async (question: string) => {
     try {
-        const client = getClient();
+        const ai = getClient();
         const prompt = `
             You are HemoBot, a friendly and knowledgeable hematology assistant.
             Answer the following question about blood types, donation, or genetics: "${question}"
@@ -44,8 +44,8 @@ export const askMedicalConsultant = async (question: string) => {
             If the question is not about blood or health, politely redirect to the topic.
         `;
         
-        const response = await client.models.generateContent({
-            model: 'gemini-2.5-flash',
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
             contents: prompt,
         });
 

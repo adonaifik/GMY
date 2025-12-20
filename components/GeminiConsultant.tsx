@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { askMedicalConsultant } from '../services/geminiService';
 import { MessageSquare, Send, Bot, User } from 'lucide-react';
@@ -36,7 +37,8 @@ const GeminiConsultant: React.FC = () => {
                 </div>
                 <div>
                     <h3 className="font-bold text-lg">HemoBot AI</h3>
-                    <p className="text-xs text-slate-400">Powered by Gemini 2.5 Flash</p>
+                    {/* Fix: Update label to match gemini-3-flash-preview used in services/geminiService.ts */}
+                    <p className="text-xs text-slate-400">Powered by Gemini 3 Flash</p>
                 </div>
             </div>
 

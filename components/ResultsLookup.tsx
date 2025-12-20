@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, FileText, User, Calendar, Mail, AlertCircle, Droplets, Loader2, Database, Pencil, Save, X, Check, Copy } from 'lucide-react';
+import { Search, FileText, User, Calendar, Mail, AlertCircle, Droplets, Loader2, Database, Pencil, Check, Copy, X } from 'lucide-react';
 import { getUserByCode, updateUser } from '../services/userService';
 import { UserProfile } from '../types';
 
@@ -40,10 +40,10 @@ const ResultsLookup: React.FC = () => {
             setProfile(foundUser);
             setEditForm({ name: foundUser.name, gender: foundUser.gender, email: foundUser.email });
         } else {
-            setError("No profile found in database with that code.");
+            setError("No profile found with that code in Supabase.");
         }
     } catch (err) {
-        setError("Connection error. Please try again.");
+        setError("Error connecting to cloud database. Check internet or API keys.");
     } finally {
         setLoading(false);
     }
@@ -73,24 +73,8 @@ const ResultsLookup: React.FC = () => {
 
   const handleCopyCode = async () => {
     if (!profile) return;
-    
     try {
-        // Primary method for Secure Contexts (HTTPS / Localhost)
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(profile.code);
-        } else {
-            // Fallback method for HTTP Local Network IPs
-            const textArea = document.createElement("textarea");
-            textArea.value = profile.code;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-        }
-        
+        await navigator.clipboard.writeText(profile.code);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -126,7 +110,7 @@ const ResultsLookup: React.FC = () => {
                             disabled={loading}
                             className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Search Database"}
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Search Cloud"}
                         </button>
                     </form>
 
@@ -279,7 +263,7 @@ const ResultsLookup: React.FC = () => {
                                 <p className="text-slate-500 text-sm leading-relaxed">
                                     {isEditing 
                                      ? "Editing profile details. Click the checkmark to save changes permanently." 
-                                     : "Profile retrieved from database. Your blood type has been determined. You can use this information in the Genetics Calculator."}
+                                     : "Profile retrieved from central database. You can access this information from any device using your unique code."}
                                 </p>
                             </div>
                          </div>

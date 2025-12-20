@@ -1,12 +1,6 @@
 import { BloodType, GeneticResult } from '../types';
 
 export const calculateChildBloodTypes = (parent1: BloodType, parent2: BloodType): GeneticResult => {
-    // Simplified Punnett Square logic
-    // A = AA or AO
-    // B = BB or BO
-    // AB = AB
-    // O = OO
-
     const p1 = parent1;
     const p2 = parent2;
     const allTypes = [BloodType.A, BloodType.B, BloodType.AB, BloodType.O];
@@ -62,6 +56,26 @@ export const quizQuestions = [
 
 export const codeSnippets = [
     {
+        language: 'SQL',
+        title: 'Supabase Table Setup',
+        code: `CREATE TABLE users (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  code text UNIQUE NOT NULL,
+  name text NOT NULL,
+  gender text NOT NULL,
+  email text NOT NULL,
+  blood_type text NOT NULL,
+  rh_factor text NOT NULL,
+  registered_at text NOT NULL,
+  created_at timestamp with time zone DEFAULT now()
+);
+
+-- Enable RLS and add public access policy
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public Access" ON users FOR ALL USING (true);`,
+        description: "Run this in your Supabase SQL Editor to create the required table and permissions."
+    },
+    {
         language: 'python',
         title: 'Blood Type Compatibility Check',
         code: `def check_compatibility(donor, recipient):
@@ -92,18 +106,5 @@ export const codeSnippets = [
     }
 }`,
         description: "Java object-oriented representation of a patient record."
-    },
-    {
-        language: 'css',
-        title: 'Blood Cell Animation',
-        code: `.blood-cell {
-    width: 50px;
-    height: 50px;
-    background: radial-gradient(circle at 30% 30%, #ff4d4d, #cc0000);
-    border-radius: 50%;
-    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3);
-    animation: float 3s ease-in-out infinite;
-}`,
-        description: "CSS styling for a 3D-looking red blood cell."
     }
 ];
