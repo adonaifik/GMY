@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { TabView, BloodType } from './types';
 import GeneticsCalculator from './components/GeneticsCalculator';
@@ -7,13 +8,13 @@ import Registration from './components/Registration';
 import ResultsLookup from './components/ResultsLookup';
 import CodeShowcase from './components/CodeShowcase';
 import CompatibilityMatrix from './components/CompatibilityMatrix';
-import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon, RefreshCcw, ShieldCheck, AlertCircle } from 'lucide-react';
+import Dashboard from './components/Dashboard';
+import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon, RefreshCcw, ShieldCheck, AlertCircle, LayoutDashboard } from 'lucide-react';
 
-const APP_VERSION = "2.4.0-HARDENED";
-const BUILD_TIME = new Date().toLocaleTimeString();
+const APP_VERSION = "2.5.0-HUB";
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabView>('quiz');
+  const [activeTab, setActiveTab] = useState<TabView>('dashboard');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [quizBloodType, setQuizBloodType] = useState<BloodType | null>(null);
   const [envWarning, setEnvWarning] = useState<string | null>(null);
@@ -26,7 +27,6 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
-    // Check for common deployment errors (missing keys)
     if (!process.env.API_KEY) {
       setEnvWarning("AI configuration pending. Using limited feature set.");
     }
@@ -46,6 +46,7 @@ const App: React.FC = () => {
     setTimeout(() => {
       setActiveTab(tab);
       setIsTransitioning(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }, 300);
   };
 
@@ -63,6 +64,7 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'dashboard': return <Dashboard onNavigate={handleTabChange} />;
       case 'quiz': 
         return <PersonalityQuiz 
                   onComplete={handleQuizComplete} 
@@ -78,7 +80,7 @@ const App: React.FC = () => {
       case 'results': return <ResultsLookup />;
       case 'ai-consult': return <GeminiConsultant />;
       case 'code': return <CodeShowcase />;
-      default: return <PersonalityQuiz />;
+      default: return <Dashboard onNavigate={handleTabChange} />;
     }
   };
 
@@ -96,44 +98,45 @@ const App: React.FC = () => {
     }
   };
 
+  const menuItems = [
+    { id: 'dashboard', label: 'Home', icon: LayoutDashboard, color: 'slate' },
+    { id: 'quiz', label: 'Quiz', icon: BrainCircuit, color: 'indigo' },
+    { id: 'compatibility', label: 'Compatibility', icon: HeartPulse, color: 'rose' },
+    { id: 'genetics', label: 'Genetics', icon: Dna, color: 'rose' },
+    { id: 'register', label: 'Register', icon: UserPlus, color: 'amber' },
+    { id: 'results', label: 'Results', icon: Search, color: 'blue' },
+    { id: 'ai-consult', label: 'Dr. AI', icon: MessageSquarePlus, color: 'emerald' },
+    { id: 'code', label: 'Code', icon: Code2, color: 'slate' },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 flex flex-col">
       <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-24">
-            <div className="flex items-center gap-5 group cursor-pointer select-none" onClick={() => handleTabChange('quiz')}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center h-20 md:h-24">
+            <div className="flex items-center gap-3 md:gap-5 group cursor-pointer select-none" onClick={() => handleTabChange('dashboard')}>
               <div className="relative z-10">
-                 <div className="absolute inset-0 bg-rose-600 blur-[30px] rounded-full opacity-20 group-hover:opacity-50 transition-opacity duration-700 animate-pulse"></div>
-                 <Droplets className="relative w-14 h-14 text-rose-500 animate-gentle-wiggle transition-transform duration-500 group-hover:scale-110" />
+                 <div className="absolute inset-0 bg-rose-600 blur-[20px] rounded-full opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                 <Droplets className="relative w-10 h-10 md:w-14 md:h-14 text-rose-500 animate-gentle-wiggle" />
               </div>
               <div className="flex flex-col justify-center">
-                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-rose-100 to-rose-200 tracking-tighter">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tighter">
                   BloodTesting
                 </h1>
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="h-[2px] w-4 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-700"></div>
-                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.3em] opacity-80">
-                      Deployment: Hardened
-                    </p>
-                </div>
+                <p className="hidden sm:block text-[10px] font-bold text-emerald-500 uppercase tracking-[0.3em] opacity-80">
+                  Clinical Diagnostics
+                </p>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
-              <nav className="hidden xl:flex gap-1">
-                {[
-                  { id: 'quiz', label: 'Quiz', icon: BrainCircuit, color: 'indigo' },
-                  { id: 'compatibility', label: 'Compatibility', icon: HeartPulse, color: 'rose' },
-                  { id: 'genetics', label: 'Genetics', icon: Dna, color: 'rose' },
-                  { id: 'register', label: 'Register', icon: UserPlus, color: 'amber' },
-                  { id: 'results', label: 'Results', icon: Search, color: 'blue' },
-                  { id: 'ai-consult', label: 'Dr. AI', icon: MessageSquarePlus, color: 'emerald' },
-                  { id: 'code', label: 'Code', icon: Code2, color: 'slate' },
-                ].map((item) => (
+              {/* Desktop Nav - Now always visible flex, scrollable on smaller desktops */}
+              <nav className="hidden lg:flex gap-1 overflow-x-auto custom-scrollbar whitespace-nowrap py-2 px-1">
+                {menuItems.map((item) => (
                   <button 
                     key={item.id}
                     onClick={() => handleTabChange(item.id as TabView)}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${getTabStyles(item.id, item.color)}`}
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${getTabStyles(item.id, item.color)}`}
                   >
                     <item.icon className="w-4 h-4" /> {item.label}
                   </button>
@@ -142,25 +145,37 @@ const App: React.FC = () => {
 
               <div className="flex items-center gap-2 pl-4 border-l border-slate-800">
                 <button 
-                  onClick={forceAppRefresh}
-                  className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50"
-                  title="Force Cache Refresh"
-                >
-                  <RefreshCcw className="w-5 h-5" />
-                </button>
-                <button 
                   onClick={toggleDarkMode}
-                  className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50 shadow-inner"
-                  aria-label="Toggle Dark Mode"
+                  className="p-2 md:p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-all border border-slate-700/50 shadow-inner"
                 >
                   {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-400" />}
+                </button>
+                <button 
+                  onClick={forceAppRefresh}
+                  className="hidden sm:block p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-all border border-slate-700/50"
+                >
+                  <RefreshCcw className="w-5 h-5" />
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Environment Guard Bar */}
+        {/* Mobile Tab Bar - Scrollable */}
+        <div className="lg:hidden bg-slate-900 border-t border-slate-800 overflow-x-auto whitespace-nowrap px-4 py-2 custom-scrollbar">
+            <div className="flex gap-2">
+                {menuItems.map((item) => (
+                  <button 
+                    key={`mobile-${item.id}`}
+                    onClick={() => handleTabChange(item.id as TabView)}
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${getTabStyles(item.id, item.color)}`}
+                  >
+                    <item.icon className="w-4 h-4" /> {item.label}
+                  </button>
+                ))}
+            </div>
+        </div>
+
         {envWarning && (
           <div className="bg-amber-500/10 border-t border-amber-500/20 py-2 px-4 flex items-center justify-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest">
             <AlertCircle className="w-4 h-4" /> {envWarning}
@@ -168,7 +183,7 @@ const App: React.FC = () => {
         )}
       </header>
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 w-full">
         <div className={`transition-all duration-300 ease-in-out transform ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
           {renderContent()}
         </div>
@@ -179,11 +194,11 @@ const App: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-slate-400 text-sm flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Env: Node v20 | Ver: {APP_VERSION}
+                    Ver: {APP_VERSION} | Node v20
                 </p>
                 <div className="flex items-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest font-black">
-                   <div className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-indigo-500" /> TOML Overrides Active</div>
-                   <div className="flex items-center gap-1"><Code2 className="w-3 h-3 text-rose-500" /> Static Root Delivery</div>
+                   <div className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-indigo-500" /> Cloud Sync Active</div>
+                   <div className="flex items-center gap-1"><Code2 className="w-3 h-3 text-rose-500" /> Multi-Stack Suite</div>
                 </div>
             </div>
         </div>

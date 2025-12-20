@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { UserPlus, Mail, User, ArrowRight, CheckCircle, BrainCircuit, AlertTriangle, Droplets, Copy, Check, WifiOff, Save, Cloud, Users, RefreshCw, Info, Download, ShieldCheck } from 'lucide-react';
 import { registerUser, checkServerHealth } from '../services/userService';
@@ -13,6 +12,7 @@ type SavePhase = 'idle' | 'local' | 'cloud' | 'finalizing';
 
 const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQuiz }) => {
   const [formData, setFormData] = useState({ name: '', gender: '', email: '' });
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [registeredUser, setRegisteredUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [savePhase, setSavePhase] = useState<SavePhase>('idle');
@@ -35,6 +35,11 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
     verifyConnection();
   }, []);
 
+  const validateEmail = (email: string) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email);
+  };
+
   const downloadReport = (user: UserProfile) => {
     const data = JSON.stringify(user, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -51,12 +56,17 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!quizResult) return;
+
+    setEmailError(null);
+    if (!validateEmail(formData.email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
     
     setLoading(true);
     setSavePhase('local');
     
     try {
-        // We simulate a step-by-step process for transparency
         await new Promise(r => setTimeout(r, 600)); 
         setSavePhase('cloud');
         
@@ -209,7 +219,8 @@ const Registration: React.FC<RegistrationProps> = ({ quizResult, onRedirectToQui
                     </div>
                     <div>
                         <label className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2">Email</label>
-                        <input required type="email" className="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-indigo-500 transition-all font-semibold" placeholder="patient@hospital.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+                        <input required type="email" className={`w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border ${emailError ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700'} text-slate-900 dark:text-white focus:border-indigo-500 transition-all font-semibold`} placeholder="patient@hospital.com" value={formData.email} onChange={(e) => {setFormData({...formData, email: e.target.value}); setEmailError(null);}} />
+                        {emailError && <p className="mt-2 text-xs text-rose-500 font-bold">{emailError}</p>}
                     </div>
                 </div>
 

@@ -1,11 +1,11 @@
 {
   "name": "bloodtesting-pro",
-  "version": "2.4.8",
+  "version": "2.4.9",
   "private": true,
   "description": "Medical educational suite for blood determination and genetics",
   "type": "module",
   "scripts": {
-    "build": "mkdir -p build-output && cp index.html index.tsx types.ts metadata.json build-output/ && cp -r components services build-output/",
+    "build": "mkdir -p build-output && cp index.html index.tsx types.ts metadata.json build-output/ && cp -rv components services build-output/",
     "start": "echo 'Ready'"
   },
   "engines": {

@@ -35,4 +35,4 @@ export interface UserProfile {
   rhFactor: RhFactor;
 }
 
-export type TabView = 'genetics' | 'quiz' | 'ai-consult' | 'register' | 'results' | 'code' | 'compatibility';
+export type TabView = 'dashboard' | 'genetics' | 'quiz' | 'ai-consult' | 'register' | 'results' | 'code' | 'compatibility';

@@ -13,10 +13,16 @@ const ResultsLookup: React.FC = () => {
   // Edit Mode State
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: '', gender: '', email: '' });
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   // Copy State
   const [copied, setCopied] = useState(false);
+
+  const validateEmail = (email: string) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email);
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +30,7 @@ const ResultsLookup: React.FC = () => {
     setProfile(null);
     setSearched(false);
     setIsEditing(false);
+    setEmailError(null);
 
     if (code.length < 5) {
         setError("Code must be at least 5 characters.");
@@ -51,6 +58,13 @@ const ResultsLookup: React.FC = () => {
 
   const handleSaveEdit = async () => {
     if (!profile) return;
+    
+    setEmailError(null);
+    if (!validateEmail(editForm.email)) {
+      setEmailError("Invalid email format.");
+      return;
+    }
+
     setSaving(true);
     try {
         const updated = await updateUser(profile.code, editForm);
@@ -69,6 +83,7 @@ const ResultsLookup: React.FC = () => {
           setEditForm({ name: profile.name, gender: profile.gender, email: profile.email });
       }
       setIsEditing(false);
+      setEmailError(null);
   };
 
   const handleCopyCode = async () => {
@@ -244,12 +259,15 @@ const ResultsLookup: React.FC = () => {
                                     <Mail className="w-4 h-4" /> Contact Email
                                 </div>
                                 {isEditing ? (
-                                    <input 
-                                        type="email"
-                                        value={editForm.email}
-                                        onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                                        className="w-full bg-white border border-indigo-200 rounded p-1 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                    />
+                                    <div className="flex flex-col">
+                                      <input 
+                                          type="email"
+                                          value={editForm.email}
+                                          onChange={(e) => {setEditForm({...editForm, email: e.target.value}); setEmailError(null);}}
+                                          className={`w-full bg-white border ${emailError ? 'border-rose-500' : 'border-indigo-200'} rounded p-1 text-slate-800 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500`}
+                                      />
+                                      {emailError && <p className="text-[10px] text-rose-500 font-bold mt-1 uppercase">{emailError}</p>}
+                                    </div>
                                 ) : (
                                     <div className="text-lg font-semibold text-slate-800 break-all">{profile.email}</div>
                                 )}
