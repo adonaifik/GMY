@@ -1,3 +1,4 @@
+
 import { BloodType, GeneticResult } from '../types';
 
 export const calculateChildBloodTypes = (parent1: BloodType, parent2: BloodType): GeneticResult => {
@@ -57,60 +58,73 @@ export const quizQuestions = [
 export const codeSnippets = [
     {
         language: 'python',
-        title: 'Compatibility Algorithm',
-        code: `def check_compatibility(donor, recipient):
-    # Standard ABO/Rh logic
-    rules = {
-        'O-': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],
-        'O+': ['O+', 'A+', 'B+', 'AB+'],
-        'A-': ['A-', 'A+', 'AB-', 'AB+'],
-        'AB+': ['AB+']
-    }
-    return recipient in rules.get(donor, [])`,
-        description: "Python implementation for donor-recipient matching."
+        title: 'Blood Group Analysis Logic',
+        code: `class BloodAnalyzer:
+    def __init__(self, phenotype):
+        self.phenotype = phenotype
+        self.genotype_map = {
+            'A': ['AA', 'AO'],
+            'B': ['BB', 'BO'],
+            'AB': ['AB'],
+            'O': ['OO']
+        }
+
+    def get_possible_gametes(self):
+        # Calculate possible alleles based on the quiz result
+        return list(set("".join(self.genotype_map.get(self.phenotype, []))))
+
+# Usage: analyzer = BloodAnalyzer('A')`,
+        description: "Python class for mapping medical phenotypes to genetic alleles."
     },
     {
         language: 'java',
-        title: 'Medical Record Entity',
-        code: `public class PatientRecord {
-    private String patientId;
-    private BloodType type;
-    
-    public synchronized void updateRegistry() {
-        // Safe thread-based cloud sync logic
-        CloudConnector.sync(this.patientId);
+        title: 'Punnett Square Heredity Model',
+        code: `public class HeredityModel {
+    public List<String> calculate(String p1, String p2) {
+        Set<String> results = new HashSet<>();
+        for (char a1 : p1.toCharArray()) {
+            for (char a2 : p2.toCharArray()) {
+                results.add(formatAllele(a1, a2));
+            }
+        }
+        return new ArrayList<>(results);
+    }
+
+    private String formatAllele(char c1, char c2) {
+        return c1 < c2 ? ""+c1+c2 : ""+c2+c1;
     }
 }`,
-        description: "Java class structure for handling patient record synchronization."
+        description: "Java implementation of Mendelian inheritance using Punnett square logic."
     },
     {
         language: 'css',
-        title: 'Clinical UI Styling',
-        code: `.blood-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 0, 0, 0.2);
-    border-radius: 1.5rem;
-    padding: 2rem;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        title: 'Clinical Data Visualization',
+        code: `/* Glassmorphism for Medical Dashboard */
+.clinical-panel {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(244, 63, 94, 0.2);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    border-radius: 2rem;
 }
 
-.type-indicator {
-    font-weight: 900;
-    color: #ef4444; /* rose-500 */
-    text-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+.indicator-active {
+    background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+    filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.4));
+    animation: pulse-glow 2s infinite;
 }`,
-        description: "CSS variables and glassmorphism styling for medical dashboard elements."
+        description: "CSS styling using advanced glassmorphism and clinical glow effects."
     },
     {
         language: 'SQL',
-        title: 'Database Schema',
-        code: `CREATE TABLE patients (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  access_code text UNIQUE,
-  blood_type text,
-  registered_at timestamptz DEFAULT now()
+        title: 'Patient Data Normalization',
+        code: `CREATE TABLE clinical_records (
+    record_id SERIAL PRIMARY KEY,
+    patient_uuid UUID REFERENCES users(id),
+    blood_phenotype VARCHAR(3) CHECK (blood_phenotype IN ('A', 'B', 'AB', 'O')),
+    rh_factor BOOLEAN,
+    observed_at TIMESTAMP DEFAULT NOW()
 );`,
-        description: "Standard SQL definition for the patient registry table."
+        description: "Relational database schema for storing verified blood determination records."
     }
 ];

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { TabView, BloodType } from './types';
 import GeneticsCalculator from './components/GeneticsCalculator';
@@ -7,15 +8,16 @@ import Registration from './components/Registration';
 import ResultsLookup from './components/ResultsLookup';
 import CodeShowcase from './components/CodeShowcase';
 import CompatibilityMatrix from './components/CompatibilityMatrix';
-import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon, RefreshCcw } from 'lucide-react';
+import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon, RefreshCcw, ShieldCheck, AlertCircle } from 'lucide-react';
 
-const APP_VERSION = "2.2.0-DEPLOYED";
+const APP_VERSION = "2.3.0-STABLE";
 const BUILD_TIME = new Date().toLocaleTimeString();
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabView>('quiz');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [quizBloodType, setQuizBloodType] = useState<BloodType | null>(null);
+  const [envWarning, setEnvWarning] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('theme') === 'dark' || 
@@ -25,6 +27,11 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
+    // Check for common deployment errors (missing keys)
+    if (!process.env.API_KEY) {
+      setEnvWarning("API Key not detected. AI features may be limited.");
+    }
+    
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -52,7 +59,6 @@ const App: React.FC = () => {
   };
 
   const forceAppRefresh = () => {
-    // Hard refresh to clear persistent caches often found in deployment environments
     window.location.reload();
   };
 
@@ -77,7 +83,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Explicit class mapping for Tailwind JIT
   const getTabStyles = (tabId: string, color: string) => {
     const isActive = activeTab === tabId;
     if (!isActive) return 'text-slate-400 hover:text-white hover:bg-slate-800';
@@ -109,7 +114,7 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-2 overflow-hidden">
                     <div className="h-[2px] w-4 bg-rose-500 rounded-full group-hover:w-full transition-all duration-700"></div>
                     <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.3em] opacity-80">
-                      Build: {BUILD_TIME}
+                      Sync Status: Active
                     </p>
                 </div>
               </div>
@@ -140,7 +145,7 @@ const App: React.FC = () => {
                 <button 
                   onClick={forceAppRefresh}
                   className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50"
-                  title="Force Hard Reload"
+                  title="Clear App Cache"
                 >
                   <RefreshCcw className="w-5 h-5" />
                 </button>
@@ -155,6 +160,13 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Environment Guard Bar */}
+        {envWarning && (
+          <div className="bg-amber-500/10 border-t border-amber-500/20 py-2 px-4 flex items-center justify-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-widest">
+            <AlertCircle className="w-4 h-4" /> {envWarning}
+          </div>
+        )}
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
@@ -164,12 +176,17 @@ const App: React.FC = () => {
       </main>
 
       <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-            <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Node Deployment Ver: {APP_VERSION}
-            </p>
-            <p className="text-slate-400 text-[10px] mt-1 uppercase tracking-widest font-bold">Build Signature: {BUILD_TIME}</p>
+        <div className="max-w-7xl mx-auto px-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <p className="text-slate-400 text-sm flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Version: {APP_VERSION} | Build: {BUILD_TIME}
+                </p>
+                <div className="flex items-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest font-black">
+                   <div className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-indigo-500" /> Secure ESM Env</div>
+                   <div className="flex items-center gap-1"><Code2 className="w-3 h-3 text-rose-500" /> Full Code Access</div>
+                </div>
+            </div>
         </div>
       </footer>
     </div>
