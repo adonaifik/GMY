@@ -5,7 +5,7 @@
   "description": "Medical educational suite for blood determination and genetics",
   "type": "module",
   "scripts": {
-    "build": "echo 'Build successful'",
+    "build": "mkdir -p build-output && cp index.html index.tsx types.ts metadata.json build-output/ && cp -r components services build-output/",
     "start": "echo 'Ready'"
   },
   "engines": {
