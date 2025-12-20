@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { TabView, BloodType } from './types';
 import GeneticsCalculator from './components/GeneticsCalculator';
@@ -10,7 +9,7 @@ import CodeShowcase from './components/CodeShowcase';
 import CompatibilityMatrix from './components/CompatibilityMatrix';
 import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon, RefreshCcw, ShieldCheck, AlertCircle } from 'lucide-react';
 
-const APP_VERSION = "2.3.0-STABLE";
+const APP_VERSION = "2.4.0-HARDENED";
 const BUILD_TIME = new Date().toLocaleTimeString();
 
 const App: React.FC = () => {
@@ -29,7 +28,7 @@ const App: React.FC = () => {
   useEffect(() => {
     // Check for common deployment errors (missing keys)
     if (!process.env.API_KEY) {
-      setEnvWarning("API Key not detected. AI features may be limited.");
+      setEnvWarning("AI configuration pending. Using limited feature set.");
     }
     
     if (isDarkMode) {
@@ -112,9 +111,9 @@ const App: React.FC = () => {
                   BloodTesting
                 </h1>
                 <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="h-[2px] w-4 bg-rose-500 rounded-full group-hover:w-full transition-all duration-700"></div>
-                    <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.3em] opacity-80">
-                      Sync Status: Active
+                    <div className="h-[2px] w-4 bg-emerald-500 rounded-full group-hover:w-full transition-all duration-700"></div>
+                    <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.3em] opacity-80">
+                      Deployment: Hardened
                     </p>
                 </div>
               </div>
@@ -145,7 +144,7 @@ const App: React.FC = () => {
                 <button 
                   onClick={forceAppRefresh}
                   className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50"
-                  title="Clear App Cache"
+                  title="Force Cache Refresh"
                 >
                   <RefreshCcw className="w-5 h-5" />
                 </button>
@@ -180,11 +179,11 @@ const App: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-slate-400 text-sm flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Version: {APP_VERSION} | Build: {BUILD_TIME}
+                    Env: Node v20 | Ver: {APP_VERSION}
                 </p>
                 <div className="flex items-center gap-4 text-[10px] text-slate-500 uppercase tracking-widest font-black">
-                   <div className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-indigo-500" /> Secure ESM Env</div>
-                   <div className="flex items-center gap-1"><Code2 className="w-3 h-3 text-rose-500" /> Full Code Access</div>
+                   <div className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-indigo-500" /> TOML Overrides Active</div>
+                   <div className="flex items-center gap-1"><Code2 className="w-3 h-3 text-rose-500" /> Static Root Delivery</div>
                 </div>
             </div>
         </div>

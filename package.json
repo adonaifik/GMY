@@ -1,23 +1,16 @@
-
 {
   "name": "bloodtesting-pro",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "description": "Medical educational suite for blood determination and genetics",
   "type": "module",
   "scripts": {
-    "dev": "echo 'Run locally using a static server'",
-    "build": "echo 'No build step required for ESM-based apps. Serving index.html directly.'",
-    "start": "echo 'Serving static files'",
-    "deploy": "npm run build"
+    "build": "echo 'Static deployment'"
+  },
+  "engines": {
+    "node": ">=18.0.0 <23.0.0"
   },
   "dependencies": {
     "dotenv": "^16.4.5"
-  },
-  "keywords": [
-    "blood-type",
-    "genetics",
-    "medical",
-    "quiz"
-  ]
+  }
 }
