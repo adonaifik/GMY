@@ -9,7 +9,8 @@ import CodeShowcase from './components/CodeShowcase';
 import CompatibilityMatrix from './components/CompatibilityMatrix';
 import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon, RefreshCcw } from 'lucide-react';
 
-const APP_VERSION = "2.1.0-STABLE";
+const APP_VERSION = "2.2.0-DEPLOYED";
+const BUILD_TIME = new Date().toLocaleTimeString();
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabView>('quiz');
@@ -51,6 +52,7 @@ const App: React.FC = () => {
   };
 
   const forceAppRefresh = () => {
+    // Hard refresh to clear persistent caches often found in deployment environments
     window.location.reload();
   };
 
@@ -75,6 +77,21 @@ const App: React.FC = () => {
     }
   };
 
+  // Explicit class mapping for Tailwind JIT
+  const getTabStyles = (tabId: string, color: string) => {
+    const isActive = activeTab === tabId;
+    if (!isActive) return 'text-slate-400 hover:text-white hover:bg-slate-800';
+    
+    switch(color) {
+      case 'indigo': return 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20';
+      case 'rose': return 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+      case 'amber': return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+      case 'blue': return 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+      case 'emerald': return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      default: return 'bg-slate-500/10 text-slate-300 border border-slate-500/20';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 flex flex-col">
       <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-2xl">
@@ -92,7 +109,7 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-2 overflow-hidden">
                     <div className="h-[2px] w-4 bg-rose-500 rounded-full group-hover:w-full transition-all duration-700"></div>
                     <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.3em] opacity-80">
-                      Sync Version {APP_VERSION}
+                      Build: {BUILD_TIME}
                     </p>
                 </div>
               </div>
@@ -112,11 +129,7 @@ const App: React.FC = () => {
                   <button 
                     key={item.id}
                     onClick={() => handleTabChange(item.id as TabView)}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                      activeTab === item.id 
-                      ? `bg-${item.color}-500/10 text-${item.color}-400 border border-${item.color}-500/20` 
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${getTabStyles(item.id, item.color)}`}
                   >
                     <item.icon className="w-4 h-4" /> {item.label}
                   </button>
@@ -127,7 +140,7 @@ const App: React.FC = () => {
                 <button 
                   onClick={forceAppRefresh}
                   className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50"
-                  title="Clear Cache & Reload"
+                  title="Force Hard Reload"
                 >
                   <RefreshCcw className="w-5 h-5" />
                 </button>
@@ -156,7 +169,7 @@ const App: React.FC = () => {
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Node Deployment Ver: {APP_VERSION}
             </p>
-            <p className="text-slate-400 text-xs mt-1">© {new Date().getFullYear()} BloodTesting. All Changes Commited.</p>
+            <p className="text-slate-400 text-[10px] mt-1 uppercase tracking-widest font-bold">Build Signature: {BUILD_TIME}</p>
         </div>
       </footer>
     </div>

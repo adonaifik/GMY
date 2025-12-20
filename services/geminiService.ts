@@ -1,16 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 
-const getClient = () => {
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-        throw new Error("API Key not found");
-    }
-    return new GoogleGenAI({ apiKey });
-};
+// Strictly follow the SDK initialization rule
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generatePersonalityAnalysis = async (bloodType: string, traits: string[]) => {
     try {
-        const ai = getClient();
         const prompt = `
             Based on the Japanese Blood Type Personality Theory (Ketsueki-gata), 
             provide a fun, engaging, and slightly scientific-sounding personality analysis 
@@ -35,7 +29,6 @@ export const generatePersonalityAnalysis = async (bloodType: string, traits: str
 
 export const askMedicalConsultant = async (question: string) => {
     try {
-        const ai = getClient();
         const prompt = `
             You are HemoBot, a friendly and knowledgeable hematology assistant.
             Answer the following question about blood types, donation, or genetics: "${question}"
