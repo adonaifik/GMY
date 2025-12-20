@@ -56,55 +56,61 @@ export const quizQuestions = [
 
 export const codeSnippets = [
     {
-        language: 'SQL',
-        title: 'Supabase Table Setup',
-        code: `CREATE TABLE users (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  code text UNIQUE NOT NULL,
-  name text NOT NULL,
-  gender text NOT NULL,
-  email text NOT NULL,
-  blood_type text NOT NULL,
-  rh_factor text NOT NULL,
-  registered_at text NOT NULL,
-  created_at timestamp with time zone DEFAULT now()
-);
-
--- Enable RLS and add public access policy
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public Access" ON users FOR ALL USING (true);`,
-        description: "Run this in your Supabase SQL Editor to create the required table and permissions."
-    },
-    {
         language: 'python',
-        title: 'Blood Type Compatibility Check',
+        title: 'Compatibility Algorithm',
         code: `def check_compatibility(donor, recipient):
-    compatibility = {
+    # Standard ABO/Rh logic
+    rules = {
         'O-': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'],
         'O+': ['O+', 'A+', 'B+', 'AB+'],
         'A-': ['A-', 'A+', 'AB-', 'AB+'],
-        'A+': ['A+', 'AB+'],
-        'B-': ['B-', 'B+', 'AB-', 'AB+'],
-        'B+': ['B+', 'AB+'],
-        'AB-': ['AB-', 'AB+'],
         'AB+': ['AB+']
     }
-    return recipient in compatibility.get(donor, [])`,
-        description: "Python dictionary lookup for donor-recipient compatibility logic."
+    return recipient in rules.get(donor, [])`,
+        description: "Python implementation for donor-recipient matching."
     },
     {
         language: 'java',
-        title: 'Patient Class Structure',
-        code: `public class Patient {
-    private String name;
-    private BloodType bloodType;
-    private boolean rhFactor;
-
-    public boolean canDonateTo(Patient recipient) {
-        // Logic implementation
-        return CompatibilityService.check(this, recipient);
+        title: 'Medical Record Entity',
+        code: `public class PatientRecord {
+    private String patientId;
+    private BloodType type;
+    
+    public synchronized void updateRegistry() {
+        // Safe thread-based cloud sync logic
+        CloudConnector.sync(this.patientId);
     }
 }`,
-        description: "Java object-oriented representation of a patient record."
+        description: "Java class structure for handling patient record synchronization."
+    },
+    {
+        language: 'css',
+        title: 'Clinical UI Styling',
+        code: `.blood-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 0, 0, 0.2);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.type-indicator {
+    font-weight: 900;
+    color: #ef4444; /* rose-500 */
+    text-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}`,
+        description: "CSS variables and glassmorphism styling for medical dashboard elements."
+    },
+    {
+        language: 'SQL',
+        title: 'Database Schema',
+        code: `CREATE TABLE patients (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  access_code text UNIQUE,
+  blood_type text,
+  registered_at timestamptz DEFAULT now()
+);`,
+        description: "Standard SQL definition for the patient registry table."
     }
 ];

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { TabView, BloodType } from './types';
 import GeneticsCalculator from './components/GeneticsCalculator';
@@ -8,7 +7,9 @@ import Registration from './components/Registration';
 import ResultsLookup from './components/ResultsLookup';
 import CodeShowcase from './components/CodeShowcase';
 import CompatibilityMatrix from './components/CompatibilityMatrix';
-import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon } from 'lucide-react';
+import { Droplets, Dna, BrainCircuit, MessageSquarePlus, UserPlus, Search, Code2, HeartPulse, Sun, Moon, RefreshCcw } from 'lucide-react';
+
+const APP_VERSION = "2.1.0-STABLE";
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabView>('quiz');
@@ -49,6 +50,10 @@ const App: React.FC = () => {
     setIsDarkMode(!isDarkMode);
   };
 
+  const forceAppRefresh = () => {
+    window.location.reload();
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'quiz': 
@@ -87,7 +92,7 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-2 overflow-hidden">
                     <div className="h-[2px] w-4 bg-rose-500 rounded-full group-hover:w-full transition-all duration-700"></div>
                     <p className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.3em] opacity-80">
-                      Supabase Cloud Labs
+                      Sync Version {APP_VERSION}
                     </p>
                 </div>
               </div>
@@ -95,71 +100,45 @@ const App: React.FC = () => {
 
             <div className="flex items-center gap-4">
               <nav className="hidden xl:flex gap-1">
-                <button 
-                  onClick={() => handleTabChange('quiz')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                    activeTab === 'quiz' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <BrainCircuit className="w-4 h-4" /> Quiz
-                </button>
-                <button 
-                  onClick={() => handleTabChange('compatibility')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                    activeTab === 'compatibility' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <HeartPulse className="w-4 h-4" /> Compatibility
-                </button>
-                <button 
-                  onClick={() => handleTabChange('genetics')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                    activeTab === 'genetics' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <Dna className="w-4 h-4" /> Genetics
-                </button>
-                <button 
-                  onClick={() => handleTabChange('register')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                    activeTab === 'register' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <UserPlus className="w-4 h-4" /> Register
-                </button>
-                <button 
-                  onClick={() => handleTabChange('results')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                    activeTab === 'results' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <Search className="w-4 h-4" /> Results
-                </button>
-                <button 
-                  onClick={() => handleTabChange('ai-consult')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                    activeTab === 'ai-consult' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <MessageSquarePlus className="w-4 h-4" /> Dr. AI
-                </button>
-                <button 
-                  onClick={() => handleTabChange('code')}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                    activeTab === 'code' ? 'bg-slate-500/10 text-slate-300 border border-slate-500/20' : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <Code2 className="w-4 h-4" /> Code
-                </button>
+                {[
+                  { id: 'quiz', label: 'Quiz', icon: BrainCircuit, color: 'indigo' },
+                  { id: 'compatibility', label: 'Compatibility', icon: HeartPulse, color: 'rose' },
+                  { id: 'genetics', label: 'Genetics', icon: Dna, color: 'rose' },
+                  { id: 'register', label: 'Register', icon: UserPlus, color: 'amber' },
+                  { id: 'results', label: 'Results', icon: Search, color: 'blue' },
+                  { id: 'ai-consult', label: 'Dr. AI', icon: MessageSquarePlus, color: 'emerald' },
+                  { id: 'code', label: 'Code', icon: Code2, color: 'slate' },
+                ].map((item) => (
+                  <button 
+                    key={item.id}
+                    onClick={() => handleTabChange(item.id as TabView)}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                      activeTab === item.id 
+                      ? `bg-${item.color}-500/10 text-${item.color}-400 border border-${item.color}-500/20` 
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" /> {item.label}
+                  </button>
+                ))}
               </nav>
 
-              <button 
-                onClick={toggleDarkMode}
-                className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50 shadow-inner"
-                aria-label="Toggle Dark Mode"
-              >
-                {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-400" />}
-              </button>
+              <div className="flex items-center gap-2 pl-4 border-l border-slate-800">
+                <button 
+                  onClick={forceAppRefresh}
+                  className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50"
+                  title="Clear Cache & Reload"
+                >
+                  <RefreshCcw className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={toggleDarkMode}
+                  className="p-3 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all border border-slate-700/50 shadow-inner"
+                  aria-label="Toggle Dark Mode"
+                >
+                  {isDarkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-400" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -175,9 +154,9 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 text-center">
             <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Connected to Supabase Project bupcimlkxezqujprxfks
+                Node Deployment Ver: {APP_VERSION}
             </p>
-            <p className="text-slate-400 text-xs mt-1">© {new Date().getFullYear()} BloodTesting. Educational purposes only.</p>
+            <p className="text-slate-400 text-xs mt-1">© {new Date().getFullYear()} BloodTesting. All Changes Commited.</p>
         </div>
       </footer>
     </div>
